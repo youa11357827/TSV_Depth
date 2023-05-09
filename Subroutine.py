@@ -38,7 +38,7 @@ def find_common_element(list1, list2):
                 return [element1, element2]
 
 
-#讀取FFT Value並返回前三個對應peak的深度
+#讀取FFT Value並返回前5個對應peak的深度
 def Read_FFT_File(FilePath):
     Depth = []
     PeakValue = []
@@ -73,8 +73,26 @@ def Find_Top5_Peak_Depth(FilePath):
 
     Top5_Peak_val = heapq.nlargest(5, PeakValue)
     Top5_Peak_indexes = [i for i in range(len(PeakValue)) if PeakValue[i] in Top5_Peak_val]
-    Top5_Peak_Depth = [Depth[i] for i in Top5_Peak_indexes]
-    return Top5_Peak_Depth
+    result = []
+    for i in Top5_Peak_indexes:
+        if (i == 0) | (i == (len(PeakValue) - 1)):
+            Cal_Depth = Depth[i]
+        else:
+            if (PeakValue[i-1] > PeakValue[i+1]):
+                if (PeakValue[i-1] >= PeakValue[i] * 0.8) & (PeakValue[i-1] <= PeakValue[i] / 0.8):
+                    Cal_Depth = Depth[i-1] * (PeakValue[i-1] / (PeakValue[i] + PeakValue[i-1])) + Depth[i] * (PeakValue[i] / (PeakValue[i] + PeakValue[i-1]))
+                else:
+                    Cal_Depth = Depth[i]
+            else:
+                if (PeakValue[i+1] >= PeakValue[i] * 0.8) & (PeakValue[i+1] <= PeakValue[i] / 0.8):
+                    Cal_Depth = Depth[i-1] * (PeakValue[i-1] / (PeakValue[i] + PeakValue[i-1])) + Depth[i] * (PeakValue[i] / (PeakValue[i] + PeakValue[i-1]))
+                else:
+                    Cal_Depth = Depth[i]
+        
+        result.append(Cal_Depth)
+    result = [round(result[i],1) for i in range(len(result))]    
+
+    return result
 
 
 def linear_closest_search(arr, x):
